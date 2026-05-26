@@ -17,7 +17,6 @@ jobs:
         sudo apt-get install unzip
         unzip project.zip -d extracted_project
         
-        # यह कमांड सीधे HabbitWarrior वाले मुख्य फोल्डर पर जाकर रुक जाएगी
         PROJECT_DIR=$(find extracted_project -name "app" | head -n 1 | xargs dirname)
         echo "PROJECT_PATH=$PROJECT_DIR" >> $GITHUB_ENV
         echo "प्रोजेक्ट का मुख्य फ़ोल्डर मिला: $PROJECT_DIR"
@@ -31,7 +30,8 @@ jobs:
     - name: Generate Gradle Wrapper Inside Project
       run: |
         cd ${{ env.PROJECT_PATH }}
-        gradle wrapper --gradle-version 8.0
+        # यहाँ हमने वर्जन बढ़ाकर 8.2 कर दिया है जो ऐप को चाहिए
+        gradle wrapper --gradle-version 8.2
         chmod +x gradlew
 
     - name: Build APK with Gradle
@@ -45,3 +45,4 @@ jobs:
         name: my-app-apk
         path: |
           **/build/outputs/apk/debug/*.apk
+          
