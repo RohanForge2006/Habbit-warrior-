@@ -17,10 +17,10 @@ jobs:
         sudo apt-get install unzip
         unzip project.zip -d extracted_project
         
-        # मुख्य फ़ोल्डर का पता लगाना जहाँ build.gradle छिपी है
-        PROJECT_DIR=$(find extracted_project -name "build.gradle" -o -name "build.gradle.kts" | head -n 1 | xargs dirname)
+        # यह कमांड सीधे HabbitWarrior वाले मुख्य फोल्डर पर जाकर रुक जाएगी
+        PROJECT_DIR=$(find extracted_project -name "app" | head -n 1 | xargs dirname)
         echo "PROJECT_PATH=$PROJECT_DIR" >> $GITHUB_ENV
-        echo "प्रोजेक्ट इस फ़ोल्डर में मिला: $PROJECT_DIR"
+        echo "प्रोजेक्ट का मुख्य फ़ोल्डर मिला: $PROJECT_DIR"
 
     - name: set up JDK 17
       uses: actions/setup-java@v4
@@ -45,4 +45,3 @@ jobs:
         name: my-app-apk
         path: |
           **/build/outputs/apk/debug/*.apk
-          
