@@ -12,13 +12,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Unzip and Move Project Files
+    - name: Unzip Project Files
       run: |
         sudo apt-get install unzip
         unzip project.zip -d extracted_project
-        # अंदर छिपे हुए मेन प्रोजेक्ट फ़ोल्डर को ढूंढकर बाहर लाना
-        find extracted_project -name "build.gradle" -o -name "build.gradle.kts" | head -n 1 | xargs dirname | xargs -I {} mv {}/* . 2>/dev/null || true
-        find extracted_project -name "app" | head -n 1 | xargs dirname | xargs -I {} mv {}/app . 2>/dev/null || true
+        # छिपे हुए फोल्डर के अंदर से मुख्य फाइलों को बाहर निकालना
+        find extracted_project -name "build.gradle" -o -name "build.gradle.kts" | head -n 1 | xargs dirname | xargs -I {} cp -r {}/* . 2>/dev/null || true
+        find extracted_project -name "app" | head -n 1 | xargs dirname | xargs -I {} cp -r {}/app . 2>/dev/null || true
         ls -la
 
     - name: set up JDK 17
@@ -26,17 +26,15 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
 
-    - name: Grant execute permission for gradlew
+    - name: Force Generate Wrapper and Permissions
       run: |
-        if [ ! -f gradlew ]; then
-          gradle init
-        fi
+        # पुरानी ग्रैडल फाइलों का झंझट खत्म करके नया रैपर बनाना
+        gradle wrapper --gradle-version 8.0
         chmod +x gradlew
 
     - name: Build with Gradle
-      run: ./gradlew assembleDebug
+      run: ./gradlew assembleDebug --no-daemon
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
@@ -44,5 +42,6 @@ jobs:
         name: my-app-apk
         path: |
           **/build/outputs/apk/debug/*.apk
+
           
 
