@@ -54,4 +54,3 @@ jobs:
         name: my-app-apk
         path: |
           **/build/outputs/apk/debug/*.apk
-          
