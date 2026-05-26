@@ -21,15 +21,18 @@ jobs:
         echo "PROJECT_PATH=$PROJECT_DIR" >> $GITHUB_ENV
         echo "प्रोजेक्ट का मुख्य फ़ोल्डर मिला: $PROJECT_DIR"
 
-    - name: Auto Fix Navigation Graph Error
+    - name: Auto Fix Project Source Code Errors
       run: |
-        # nav_graph.xml के अंदर की गलत defaultValue को ऑटोमैटिक ठीक करना
+        # 1. नेविगेशन एरर को ठीक करना
         NAV_FILE=$(find extracted_project -name "nav_graph.xml" | head -n 1)
         if [ -f "$NAV_FILE" ]; then
-          echo "नेविगेशन फ़ाइल मिली, एरर ठीक किया जा रहा है..."
           sed -i "s/defaultValue=\"-1\"/defaultValue=\"-1L\"/g" "$NAV_FILE"
           sed -i "s/defaultValue='-1'/defaultValue='-1L'/g" "$NAV_FILE"
         fi
+        
+        # 2. XML लेआउट फाइलों में गलत hintTextColor को textColorHint से बदलना
+        echo "XML फाइलों में स्पेलिंग एरर ठीक किया जा रहा है..."
+        find extracted_project -name "*.xml" -type f -exec sed -i 's/android:hintTextColor=/android:textColorHint=/g' {} +
 
     - name: set up JDK 17
       uses: actions/setup-java@v4
@@ -54,3 +57,4 @@ jobs:
         name: my-app-apk
         path: |
           **/build/outputs/apk/debug/*.apk
+          
