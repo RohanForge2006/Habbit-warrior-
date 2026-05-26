@@ -21,6 +21,16 @@ jobs:
         echo "PROJECT_PATH=$PROJECT_DIR" >> $GITHUB_ENV
         echo "प्रोजेक्ट का मुख्य फ़ोल्डर मिला: $PROJECT_DIR"
 
+    - name: Auto Fix Navigation Graph Error
+      run: |
+        # nav_graph.xml के अंदर की गलत defaultValue को ऑटोमैटिक ठीक करना
+        NAV_FILE=$(find extracted_project -name "nav_graph.xml" | head -n 1)
+        if [ -f "$NAV_FILE" ]; then
+          echo "नेविगेशन फ़ाइल मिली, एरर ठीक किया जा रहा है..."
+          sed -i "s/defaultValue=\"-1\"/defaultValue=\"-1L\"/g" "$NAV_FILE"
+          sed -i "s/defaultValue='-1'/defaultValue='-1L'/g" "$NAV_FILE"
+        fi
+
     - name: set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -33,11 +43,10 @@ jobs:
         gradle wrapper --gradle-version 8.2
         chmod +x gradlew
 
-    - name: Build APK with Gradle (Ignoring SafeArgs/Lint Errors)
+    - name: Build APK with Gradle
       run: |
         cd ${{ env.PROJECT_PATH }}
-        # यहाँ हम लिन्ट एरर और सेफ-आर्ग्स की कड़क चेकिंग को बायपास कर रहे हैं ताकि APK बन सके
-        ./gradlew assembleDebug --no-daemon -Pandroid.experimental.disableCompileSdkChecks=true -x test
+        ./gradlew assembleDebug --no-daemon -x test
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
@@ -45,5 +54,4 @@ jobs:
         name: my-app-apk
         path: |
           **/build/outputs/apk/debug/*.apk
-          **/build/outputs/apk/release/*.apk
           
